@@ -7,7 +7,7 @@ RUN apt-get update \
 
 FROM ubuntu:bionic-20200403
 
-LABEL maintainer="sameer@damagehead.com"
+LABEL maintainer="viauco@viauco.com"
 
 ENV PG_APP_HOME="/etc/docker-postgresql" \
     PG_VERSION=12 \

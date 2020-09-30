@@ -1,22 +1,25 @@
-PostgreSQL:
-  restart: always
-  image: sameersbn/postgresql:12-20200524
-  ports:
-    - "5432:5432"
-  environment:
-    - DEBUG=false
+version: "3"
 
-    - DB_USER=
-    - DB_PASS=
-    - DB_NAME=
-    - DB_TEMPLATE=
+services:
+  PostgreSQL:
+    restart: always
+    image: viauco/postgresql:12-20200524
+    ports:
+      - "5432:5432"
+    environment:
+      - DEBUG=false
 
-    - DB_EXTENSION=
+      - DB_USER=
+      - DB_PASS=
+      - DB_NAME=
+      - DB_TEMPLATE=
 
-    - REPLICATION_MODE=
-    - REPLICATION_USER=
-    - REPLICATION_PASS=
-    - REPLICATION_SSLMODE=
-  command: "--wal_keep_segments=32 --logging_collector=off"
-  volumes:
-    - postgresql:/var/lib/postgresql
+      - DB_EXTENSION=
+
+      - REPLICATION_MODE=
+      - REPLICATION_USER=
+      - REPLICATION_PASS=
+      - REPLICATION_SSLMODE=
+    command: "--wal_keep_segments=32 --logging_collector=off"
+    volumes:
+      - postgresql:/var/lib/postgresql
