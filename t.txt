@@ -1,0 +1,19 @@
+docker run --name postgresql-master -itd --restart always \
+  --env 'DB_USER=dbuser' --env 'DB_PASS=dbuser' --env 'DB_NAME=app_db' \
+  --env 'REPLICATION_USER=replicator' --env 'REPLICATION_PASS=replicator' \
+  viauco/pgsql:v12
+
+  docker run --name postgresql-slave01 -itd -p 5433:5432 --restart always \
+  --link postgresql-master:master \
+  --env 'REPLICATION_MODE=slave' --env 'REPLICATION_SSLMODE=prefer' \
+  --env 'REPLICATION_HOST=master' --env 'REPLICATION_PORT=5432'  \
+  --env 'REPLICATION_USER=replicator' --env 'REPLICATION_PASS=replicator' \
+  --env 'DB_NAME=app_db' \
+  viauco/pgsql:v12
+
+  docker run --name postgresql-slave02 -itd -p 5434:5432 --restart always \
+  --link postgresql-master:master \
+  --env 'REPLICATION_MODE=slave' --env 'REPLICATION_SSLMODE=prefer' \
+  --env 'REPLICATION_HOST=master' --env 'REPLICATION_PORT=5432'  \
+  --env 'REPLICATION_USER=replicator' --env 'REPLICATION_PASS=replicator' \
+  viauco/pgsql:v12
