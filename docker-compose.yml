@@ -1,44 +1,35 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  pgmaster:
-    restart: always
-    image: viauco/pgsql:v12
-    hostname: pgmaster
-    container_name: pgmaster
+  postgresql-master:
+    image: 'docker.io/bitnami/postgresql:12-debian-10'
     ports:
-      - "5432:5432"
-    environment:
-      - DEBUG=false
-
-      - DB_USER=dbuser
-      - DB_PASS=dbuser
-      - DB_NAME=app_db
-      - REPLICATION_USER=replicator
-      - REPLICATION_PASS=replicator
-    command: "--wal_keep_segments=32 --logging_collector=on"
+      - '5432'
     volumes:
-      - ./postgresql-master:/var/lib/postgresql
-
-  pgslave:
-    restart: always
-    image: viauco/pgsql:v12
-    container_name: pgslave
+      - 'postgresql_master_data:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=replicator
+      - POSTGRESQL_REPLICATION_PASSWORD=replicator
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=password
+      - POSTGRESQL_DATABASE=database
+      - ALLOW_EMPTY_PASSWORD=yes
+  postgresql-slave-01:
+    image: 'docker.io/bitnami/postgresql:12-debian-10'
+    ports:
+      - '5432'
     depends_on:
-      - pgmaster
-    ports:
-      - "5433:5432"
+      - postgresql-master
     environment:
-      - DEBUG=true
-      - REPLICATION_MODE=slave
-      - REPLICATION_USER=replicator
-      - REPLICATION_PASS=replicator
-      - REPLICATION_SSLMODE=prefer
-      - REPLICATION_HOST=pgmaster
-    command: " --logging_collector=on"
-    volumes:
-      - ./postgresql-slave:/var/lib/postgresql
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=replicator
+      - POSTGRESQL_REPLICATION_PASSWORD=replicator
+      - POSTGRESQL_MASTER_HOST=postgresql-master
+      - POSTGRESQL_PASSWORD=password
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - ALLOW_EMPTY_PASSWORD=yes
 
 volumes:
-  postgresql-master:
-  postgresql-slave:
+  postgresql_master_data:
+    driver: local

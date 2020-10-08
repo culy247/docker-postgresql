@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  pgmaster:
+    restart: always
+    build: .
+    image: viauco/pgsql:v12
+    hostname: pgmaster
+    container_name: pgmaster
+    ports:
+      - "5432:5432"
+    environment:
+      - DEBUG=false
+      - DB_USER=dbuser
+      - DB_PASS=dbuser
+      - DB_NAME=app_db
+      - REPLICATION_MODE=master
+      - REPLICATION_USER=replicator
+      - REPLICATION_PASS=replicator
+      - REPLICATION_SSLMODE=
+    command: "--wal_keep_segments=32 --logging_collector=on"
+    volumes:
+      - volume-postgresql-master:/var/lib/postgresql
+
+  pgslave:
+    restart: always
+    build: .
+    image: viauco/pgsql:v12
+    container_name: pgslave
+    depends_on:
+      - pgmaster
+    ports:
+      - "5433:5432"
+    environment:
+      - DEBUG=true
+      - REPLICATION_MODE=slave
+      - REPLICATION_USER=replicator
+      - REPLICATION_PASS=replicator
+      - REPLICATION_SSLMODE=
+      - REPLICATION_HOST=pgmaster
+    command: "--wal_keep_segments=32 --logging_collector=on"
+
+volumes:
+  volume-postgresql-master:
